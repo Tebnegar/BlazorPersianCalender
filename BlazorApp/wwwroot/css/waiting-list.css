@@ -1,0 +1,60 @@
+.time-input {
+    width: 100px;
+    text-align: left;
+    padding: 2px 5px;
+    border: none;
+    background-color: transparent;
+}
+
+.time-input:focus {
+    outline: none;
+    border-bottom: 1px solid #ccc;
+}
+
+.select-input {
+    width: 120px;
+    text-align: left;
+    padding: 2px 5px;
+    border: none;
+    background-color: transparent;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l10 10 10-10'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 16px 12px;
+    padding-right: 1.5rem;
+}
+
+.select-input:focus {
+    outline: none;
+    border-bottom: 1px solid #ccc;
+}
+
+.delete-btn {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+tr[draggable="true"] {
+    cursor: move;
+    user-select: none;
+}
+
+tr.dragging {
+    opacity: 0.5;
+    background-color: #f8f9fa;
+}
+
+tr[draggable="true"]:hover {
+    background-color: #f8f9fa;
+}
+
+tr.drop-target {
+    border-top: 2px dashed #007bff;
+} 

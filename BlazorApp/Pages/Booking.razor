@@ -1,0 +1,132 @@
+﻿@page "/Booking"
+@using BlazorApp.Services.Calendars
+@inject PersianCalendarService CalendarService
+@inject NavigationManager NavigationManager
+
+<h3>Booking</h3>
+
+
+<div class="calendar-container">
+    <div class="calendar-header">
+        <button class="nav-button" @onclick="PreviousMonth">‹ ماه بعد</button>
+        <span class="current-month">@GetCurrentMonthDisplay()</span>
+        <button class="nav-button" @onclick="NextMonth">ماه قبل ›</button>
+    </div>
+
+    <div class="main-content">
+        <div class="months-list">
+            <button class="current-month-btn" @onclick="GoToCurrentMonth">
+                ماه جاری
+            </button>
+            @foreach (var month in CalendarService.GetNextTwelveMonths(CurrentYear, CurrentMonth))
+            {
+                <div class="@(month.Year == CurrentYear && month.Month == CurrentMonth ? "month-item selected" : "month-item")"
+                     @onclick="() => SelectMonth(month.Year, month.Month)">
+                    @CalendarService.MonthNames[month.Month - 1] @PersianCalendarService.ConvertToFarsiNumbers(month.Year.ToString())
+                </div>
+            }
+        </div>
+
+        <div class="calendar-section">
+            <div class="weekday-header">
+                <div>جمعه</div>
+                <div>پنج‌شنبه</div>
+                <div>چهارشنبه</div>
+                <div>سه‌شنبه</div>
+                <div>دوشنبه</div>
+                <div>یکشنبه</div>
+                <div>شنبه</div>
+            </div>
+            
+            <div class="calendar-grid">
+                @{
+                    var monthDays = CalendarService.GetMonthDays(CurrentYear, CurrentMonth);
+                }
+                @for (var week = 0; week < 6; week++)
+                {
+                    <div class="week-row">
+                        @for (var day = 0; day < 7; day++)
+                        {
+                            var dayInfo = monthDays[week * 7 + day];
+                            var dayClass = $"day{(dayInfo.IsCurrentDay ? " current-day" : "")}{(dayInfo.IsOtherMonth ? " other-month" : "")}";
+
+                            <div class="@dayClass" @onclick="() => OnDayClick(dayInfo)">
+                                <span class="day-number">@PersianCalendarService.ConvertToFarsiNumbers(dayInfo.DayNumber.ToString())</span>
+                                @if (dayInfo is { IsOtherMonth: false, TaskCount: > 0 })
+                                {
+                                    <div class="icon-container">
+                                        <svg class="human-icon" viewBox="0 0 24 24">
+                                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                        </svg>
+                                        <span class="icon-count">@PersianCalendarService.ConvertToFarsiNumbers(dayInfo.TaskCount.ToString())</span>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private int CurrentYear { get; set; }
+    private int CurrentMonth { get; set; }
+
+    protected override void OnInitialized()
+    {
+        CurrentYear = CalendarService.GetCurrentYear();
+        CurrentMonth = CalendarService.GetCurrentMonth();
+    }
+
+    private string GetCurrentMonthDisplay()
+    {
+        return $"{CalendarService.MonthNames[CurrentMonth - 1]} {PersianCalendarService.ConvertToFarsiNumbers(CurrentYear.ToString())}";
+    }
+
+    private void PreviousMonth()
+    {
+        if (CurrentMonth == 1)
+        {
+            CurrentYear--;
+            CurrentMonth = 12;
+        }
+        else
+        {
+            CurrentMonth--;
+        }
+    }
+
+    private void NextMonth()
+    {
+        if (CurrentMonth == 12)
+        {
+            CurrentYear++;
+            CurrentMonth = 1;
+        }
+        else
+        {
+            CurrentMonth++;
+        }
+    }
+
+    private void SelectMonth(int year, int month)
+    {
+        CurrentYear = year;
+        CurrentMonth = month;
+    }
+
+    private void GoToCurrentMonth()
+    {
+        CurrentYear = CalendarService.GetCurrentYear();
+        CurrentMonth = CalendarService.GetCurrentMonth();
+    }
+
+    private void OnDayClick(PersianCalendarService.DayInfo dayInfo)
+    {
+        if (dayInfo.IsOtherMonth) return;
+        var url = $"/dayinfo/{CurrentYear}/{CurrentMonth}/{dayInfo.DayNumber}";
+        NavigationManager.NavigateTo(url);
+    }
+}

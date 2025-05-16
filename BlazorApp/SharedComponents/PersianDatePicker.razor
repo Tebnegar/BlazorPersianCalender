@@ -1,0 +1,507 @@
+﻿@using System.Globalization
+
+<div class="persian-date-container">
+    <div class="input-container">
+        <input type="text" 
+               class="date-input" 
+               readonly 
+               value="@DisplayDate" 
+               @onclick="ToggleCalendar" />
+        <span class="calendar-icon" @onclick="ToggleCalendar">📅</span>
+    </div>
+    
+    @if (isCalendarVisible)
+    {
+        <div class="persian-datepicker-modal" @onclick:stopPropagation>
+            <div class="datepicker-header">
+                <div class="year-month-selector">
+                    <div class="selector-item year-selector">
+                        <select class="year-dropdown" @onchange="OnYearChange">
+                            @foreach (var year in AvailableYears)
+                            {
+                                <option value="@year" selected="@(year == CurrentPersianYear)">@ToPersianNumber(year)</option>
+                            }
+                        </select>
+                    </div>
+                    
+                    <div class="selector-item">
+                        <button type="button" class="selector-button" @onclick="DecrementMonth">&lt;</button>
+                        <div class="selector-display">@GetPersianMonthName(CurrentPersianMonth)</div>
+                        <button type="button" class="selector-button" @onclick="IncrementMonth">&gt;</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="calendar-grid">
+                <div class="weekday-header">
+                    <div class="weekday">ش</div>
+                    <div class="weekday">ی</div>
+                    <div class="weekday">د</div>
+                    <div class="weekday">س</div>
+                    <div class="weekday">چ</div>
+                    <div class="weekday">پ</div>
+                    <div class="weekday friday">ج</div>
+                </div>
+                
+                <div class="calendar-days">
+                    @for (var i = 0; i < daysInMonth + firstDayOfMonth; i++)
+                    {
+                        if (i < firstDayOfMonth)
+                        {
+                            <div class="day empty"></div>
+                        }
+                        else
+                        {
+                            var dayNumber = i - firstDayOfMonth + 1;
+                            var isToday = dayNumber == CurrentPersianDay && 
+                                         CurrentPersianMonth == PersianToday.Month && 
+                                         CurrentPersianYear == PersianToday.Year;
+                            var isFriday = (i % 7) == 6;
+                            var isSelected = dayNumber == SelectedPersianDay && 
+                                            CurrentPersianMonth == SelectedPersianMonth && 
+                                            CurrentPersianYear == SelectedPersianYear;
+                            
+                            <button type="button" 
+                                   class="day-button @(isToday ? "today" : "") @(isFriday ? "friday" : "") @(isSelected ? "selected" : "")"
+                                   @onclick="() => SelectDay(dayNumber)">
+                                @ToPersianNumber(dayNumber)
+                            </button>
+                        }
+                    }
+                </div>
+            </div>
+            
+            <div class="datepicker-footer">
+                <button type="button" class="today-button" @onclick="SelectToday">امروز</button>
+                <button type="button" class="clear-button" @onclick="ClearSelection">خالی</button>
+                <button type="button" class="close-button" @onclick="CloseCalendar">بستن</button>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .persian-date-container {
+        position: relative;
+        display: block;
+        width: 100%;
+        font-family: 'Tahoma', 'Arial', sans-serif;
+        direction: rtl;
+    }
+
+    .input-container {
+        position: relative;
+        display: block;
+        width: 100%;
+    }
+
+    .date-input {
+        width: 100%;
+        padding: 5px 10px;
+        padding-left: 30px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        text-align: center;
+        cursor: pointer;
+        box-sizing: border-box;
+        height: 34px; /* Match the height of other inputs */
+    }
+
+    .calendar-icon {
+        position: absolute;
+        left: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .persian-datepicker-modal {
+        position: absolute;
+        top: calc(100% + 2px);
+        right: 0;
+        margin-top: 2px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #fff;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        z-index: 9999;
+        width: 280px;
+    }
+
+    .datepicker-header {
+        padding: 5px;
+        background-color: #f8f8f8;
+        border-bottom: 1px solid #eee;
+    }
+
+    .year-month-selector {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .selector-item {
+        display: flex;
+        align-items: center;
+    }
+
+    .year-selector {
+        flex: 1;
+        margin-left: 5px;
+    }
+
+    .year-dropdown {
+        width: 100%;
+        padding: 2px;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        font-size: 12px;
+        text-align: center;
+        direction: rtl;
+    }
+
+    .selector-button {
+        padding: 2px 5px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 12px;
+    }
+
+    .selector-display {
+        padding: 2px 5px;
+        font-size: 12px;
+        min-width: 40px;
+        text-align: center;
+    }
+
+    .calendar-grid {
+        padding: 5px;
+    }
+
+    .weekday-header {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 3px;
+    }
+
+    .weekday {
+        padding: 2px;
+        font-size: 11px;
+    }
+
+    .friday {
+        color: #ff0000;
+    }
+
+    .calendar-days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        grid-gap: 1px;
+        justify-items: center;
+    }
+
+    .day-button {
+        height: 22px;
+        width: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border: none;
+        background: none;
+        border-radius: 50%;
+        font-size: 11px;
+        padding: 0;
+        margin: 0;
+    }
+
+    .day-button:hover {
+        background-color: #f0f0f0;
+    }
+
+    .day.empty {
+        cursor: default;
+    }
+
+    .day-button.today {
+        background-color: #11B3A5;
+        color: white;
+    }
+
+    .day-button.selected {
+        background-color: #16a;
+        color: white;
+    }
+
+    .datepicker-footer {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px;
+        border-top: 1px solid #eee;
+    }
+
+    .today-button,
+    .clear-button,
+    .close-button {
+        padding: 3px 6px;
+        cursor: pointer;
+        border-radius: 3px;
+        text-align: center;
+        font-size: 11px;
+        border: none;
+        background: none;
+    }
+
+    .today-button {
+        background-color: #f0f0f0;
+    }
+
+    .clear-button {
+        color: #666;
+    }
+    
+    .close-button {
+        background-color: #eee;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public DateTime? Value { get; set; }
+    
+    [Parameter]
+    public EventCallback<DateTime?> ValueChanged { get; set; }
+    
+    [Parameter]
+    public string Format { get; set; } = "yyyy/MM/dd";
+    
+    private bool isCalendarVisible = false;
+    private int daysInMonth;
+    private int firstDayOfMonth;
+    private List<int> AvailableYears { get; set; } = new List<int>();
+    
+    // Current displayed year/month on calendar
+    private int CurrentPersianYear { get; set; }
+    private int CurrentPersianMonth { get; set; }
+    private int CurrentPersianDay { get; set; }
+    
+    // Selected date
+    private int SelectedPersianYear { get; set; }
+    private int SelectedPersianMonth { get; set; }
+    private int SelectedPersianDay { get; set; }
+    
+    // Today's date in Persian calendar
+    private (int Year, int Month, int Day) PersianToday { get; set; }
+    
+    private string DisplayDate => Value.HasValue 
+        ? $"{ToPersianNumber(SelectedPersianYear)}/{ToPersianNumber(SelectedPersianMonth)}/{ToPersianNumber(SelectedPersianDay)}" 
+        : "";
+    
+    private ElementReference calendarElement;
+    
+    protected override void OnInitialized()
+    {
+        // Get today's date in Persian calendar
+        var today = DateTime.Today;
+        PersianToday = ConvertToPersianDate(today);
+        
+        // Initialize current view to today's month/year
+        CurrentPersianYear = PersianToday.Year;
+        CurrentPersianMonth = PersianToday.Month;
+        CurrentPersianDay = PersianToday.Day;
+        
+        // Set selected date if provided
+        if (Value.HasValue)
+        {
+            var persianDate = ConvertToPersianDate(Value.Value);
+            SelectedPersianYear = persianDate.Year;
+            SelectedPersianMonth = persianDate.Month;
+            SelectedPersianDay = persianDate.Day;
+        }
+        
+        // Generate available years (-100 to +10 from current year)
+        GenerateYearsList();
+        
+        CalculateCalendarData();
+    }
+    
+    private void GenerateYearsList()
+    {
+        AvailableYears.Clear();
+        var startYear = PersianToday.Year - 100;
+        var endYear = PersianToday.Year + 10;
+        
+        for (var year = startYear; year <= endYear; year++)
+        {
+            AvailableYears.Add(year);
+        }
+    }
+    
+    private void OnYearChange(ChangeEventArgs e)
+    {
+        if (!int.TryParse(e.Value.ToString(), out var selectedYear)) return;
+        CurrentPersianYear = selectedYear;
+        CalculateCalendarData();
+    }
+    
+    private void ToggleCalendar()
+    {
+        isCalendarVisible = !isCalendarVisible;
+    }
+    
+    private void CloseCalendar()
+    {
+        isCalendarVisible = false;
+    }
+    
+    private void CalculateCalendarData()
+    {
+        // Calculate first day of month and number of days
+        var firstDayOfMonthGregorian = ConvertToGregorianDate(CurrentPersianYear, CurrentPersianMonth, 1);
+        // In Persian calendar, weeks start from Saturday (DayOfWeek.Saturday = 6)
+        // We need to convert to 0-based index where Saturday is 0
+        firstDayOfMonth = ((int)firstDayOfMonthGregorian.DayOfWeek + 1) % 7;
+
+        daysInMonth = CurrentPersianMonth switch
+        {
+            // Calculate days in month
+            <= 6 => 31,
+            <= 11 => 30,
+            _ => IsLeapYear(CurrentPersianYear) ? 30 : 29
+        };
+    }
+    
+    private bool IsLeapYear(int year)
+    {
+        return (((year + 38) * 31) % 128) <= 30;
+    }
+    
+    private (int Year, int Month, int Day) ConvertToPersianDate(DateTime date)
+    {
+        // Simple implementation for demo purposes
+        // In a real implementation, you would use a proper Persian calendar conversion
+        
+        // This is a simplified conversion for demonstration
+        // In production, use PersianCalendar from System.Globalization
+        var pc = new PersianCalendar();
+        return (pc.GetYear(date), pc.GetMonth(date), pc.GetDayOfMonth(date));
+    }
+    
+    private DateTime ConvertToGregorianDate(int year, int month, int day)
+    {
+        // Simple implementation for demo purposes
+        var pc = new PersianCalendar();
+        return pc.ToDateTime(year, month, day, 0, 0, 0, 0);
+    }
+    
+    private string GetPersianMonthName(int month)
+    {
+        string[] persianMonths = {
+            "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
+            "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"
+        };
+        
+        return persianMonths[month - 1];
+    }
+    
+    private string ToPersianNumber(int number)
+    {
+        // Convert Western digits to Persian digits
+        var western = number.ToString();
+        var persian = "";
+        
+        foreach (var c in western)
+        {
+            if (char.IsDigit(c))
+            {
+                // Convert digit from Western (0-9) to Persian (۰-۹)
+                // Persian digits in Unicode start at \u06F0
+                persian += (char)(c - '0' + 0x06F0);
+            }
+            else
+            {
+                persian += c;
+            }
+        }
+        
+        return persian;
+    }
+    
+    private void IncrementMonth()
+    {
+        if (CurrentPersianMonth == 12)
+        {
+            CurrentPersianMonth = 1;
+            CurrentPersianYear++;
+        }
+        else
+        {
+            CurrentPersianMonth++;
+        }
+        
+        CalculateCalendarData();
+    }
+    
+    private void DecrementMonth()
+    {
+        if (CurrentPersianMonth == 1)
+        {
+            CurrentPersianMonth = 12;
+            CurrentPersianYear--;
+        }
+        else
+        {
+            CurrentPersianMonth--;
+        }
+        
+        CalculateCalendarData();
+    }
+    
+    private async Task SelectDay(int day)
+    {
+        SelectedPersianYear = CurrentPersianYear;
+        SelectedPersianMonth = CurrentPersianMonth;
+        SelectedPersianDay = day;
+        
+        var selectedDate = ConvertToGregorianDate(SelectedPersianYear, SelectedPersianMonth, SelectedPersianDay);
+        await ValueChanged.InvokeAsync(selectedDate);
+        
+        // Hide calendar after selection
+        isCalendarVisible = false;
+    }
+    
+    private async Task SelectToday()
+    {
+        CurrentPersianYear = PersianToday.Year;
+        CurrentPersianMonth = PersianToday.Month;
+        CurrentPersianDay = PersianToday.Day;
+        
+        SelectedPersianYear = PersianToday.Year;
+        SelectedPersianMonth = PersianToday.Month;
+        SelectedPersianDay = PersianToday.Day;
+        
+        CalculateCalendarData();
+        
+        var today = DateTime.Today;
+        await ValueChanged.InvokeAsync(today);
+        
+        // Hide calendar after selection
+        isCalendarVisible = false;
+    }
+    
+    private async Task ClearSelection()
+    {
+        SelectedPersianYear = 0;
+        SelectedPersianMonth = 0;
+        SelectedPersianDay = 0;
+        
+        await ValueChanged.InvokeAsync(null);
+        
+        // Hide calendar after selection
+        isCalendarVisible = false;
+    }
+}
