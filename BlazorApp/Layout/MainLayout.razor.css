@@ -1,0 +1,115 @@
+.main-layout {
+    display: flex;
+    height: 100vh;
+    background: #f5f6fa;
+}
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    width: 220px;
+    background: linear-gradient(180deg, #0d2346 0%, #6a1b9a 100%);
+    color: #fff;
+    padding: 0;
+    position: relative;
+    height: 100vh;
+}
+.sidebar-header {
+    font-size: 1.4rem;
+    font-weight: bold;
+    padding: 1.5rem 1.2rem 1rem 1.2rem;
+    letter-spacing: 1px;
+}
+.navbar {
+    display: flex;
+    flex-direction: column;
+    padding: 0 0.5rem;
+    margin-bottom: 1rem;
+}
+.nav-item {
+    margin-bottom: 0.5rem;
+
+}
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.7rem 1.2rem;
+    color: black!important;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: background 0.2s, color 0.2s;
+}
+.nav-link:hover, .nav-link.active {
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+}
+.nav-link .oi {
+    margin-right: 0.7rem;
+    font-size: 1.2rem;
+}
+.sidebar-bottom {
+    padding: 1.2rem;
+    display: flex;
+    justify-content: flex-end;
+}
+.sidebar-icon {
+    color: #fff;
+    font-size: 1.3rem;
+    text-decoration: none;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+.sidebar-icon:hover {
+    background: rgba(255,255,255,0.15);
+}
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.top-bar {
+    background: #fff;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 0 1.5rem;
+}
+.top-bar-links {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+}
+.top-link {
+    color: #0d2346;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: color 0.2s;
+}
+.top-link:hover {
+    color: #6a1b9a;
+}
+.login-btn {
+    background: none;
+    border: 1px solid #0d2346;
+    color: #0d2346;
+    border-radius: 5px;
+    padding: 0.3rem 1.1rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.login-btn:hover {
+    background: #0d2346;
+    color: #fff;
+}
+.content-area {
+    flex: 1;
+    padding: 2.5rem 2.5rem 2.5rem 2rem;
+    background: #f5f6fa;
+    min-width: 0;
+    overflow-x: auto;
+}

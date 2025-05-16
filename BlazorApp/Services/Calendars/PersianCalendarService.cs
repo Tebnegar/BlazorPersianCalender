@@ -14,17 +14,17 @@ public class PersianCalendarService
         public int TaskCount { get; set; }
     }
 
-    public string[] MonthNames = new[]
-    {
+    public readonly string[] MonthNames =
+    [
         "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
         "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"
-    };
+    ];
 
-    public DateTime Today => DateTime.Now;
+    private DateTime Today => DateTime.Now;
 
     public int GetCurrentYear() => _persianCalendar.GetYear(Today);
     public int GetCurrentMonth() => _persianCalendar.GetMonth(Today);
-    public int GetCurrentDay() => _persianCalendar.GetDayOfMonth(Today);
+    private int GetCurrentDay() => _persianCalendar.GetDayOfMonth(Today);
 
     public List<DayInfo> GetMonthDays(int year, int month)
     {
@@ -104,7 +104,7 @@ public class PersianCalendarService
 
     public static string ConvertToFarsiNumbers(string input)
     {
-        string[] farsiNumbers = { "۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹" };
+        string[] farsiNumbers = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"];
         return input.Select(c => char.IsDigit(c) ? farsiNumbers[c - '0'] : c.ToString())
                    .Aggregate((a, b) => a + b);
     }
