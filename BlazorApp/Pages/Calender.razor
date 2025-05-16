@@ -1,9 +1,9 @@
-﻿@page "/Booking"
+﻿@page "/Calender"
 @using BlazorApp.Services.Calendars
 @inject PersianCalendarService CalendarService
 @inject NavigationManager NavigationManager
 
-<h3>Booking</h3>
+<h3>Calender</h3>
 
 
 <div class="calendar-container">
@@ -29,13 +29,13 @@
 
         <div class="calendar-section">
             <div class="weekday-header">
-                <div>جمعه</div>
-                <div>پنج‌شنبه</div>
-                <div>چهارشنبه</div>
-                <div>سه‌شنبه</div>
-                <div>دوشنبه</div>
-                <div>یکشنبه</div>
                 <div>شنبه</div>
+                <div>یکشنبه</div>
+                <div>دوشنبه</div>
+                <div>سه‌شنبه</div>
+                <div>چهارشنبه</div>
+                <div>پنج‌شنبه</div>
+                <div>جمعه</div>
             </div>
             
             <div class="calendar-grid">
@@ -52,15 +52,6 @@
 
                             <div class="@dayClass" @onclick="() => OnDayClick(dayInfo)">
                                 <span class="day-number">@PersianCalendarService.ConvertToFarsiNumbers(dayInfo.DayNumber.ToString())</span>
-                                @if (dayInfo is { IsOtherMonth: false, TaskCount: > 0 })
-                                {
-                                    <div class="icon-container">
-                                        <svg class="human-icon" viewBox="0 0 24 24">
-                                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                                        </svg>
-                                        <span class="icon-count">@PersianCalendarService.ConvertToFarsiNumbers(dayInfo.TaskCount.ToString())</span>
-                                    </div>
-                                }
                             </div>
                         }
                     </div>
