@@ -47,4 +47,4 @@ This project is for educational and demonstration purposes.
 
 ## ScreenShot
 
-![Persian calendar screenshot](/Images/image.png)
+![Persian calendar screenshot](./wwwroot/Images/image.png)
